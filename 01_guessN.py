@@ -1,25 +1,26 @@
 import random
+import json
 
 def guess_number() :
 
     print("\nWelcome to GuessN!\n")
 
+    file_path = 'score.json'
+
     try :
-        f = open("score.txt", 'r')
-        
-        line = f.readline()
-        print(line)
-        HS = int(line.split(':')[1].strip())
-        if not line :
-            print("Can you break him out?\n")
-        f.close()
-    
-    except FileNotFoundError:
+        with open(file_path, 'r') as f :
+            record = json.load(f)
+            HS = record['Highest Score']
+
+    except FileNotFoundError :
         print("You can be the Champion!!\n")
         HS = 99
+        record = {'champion' : 'None', 'Highest Score' : HS}
 
     target = random.randrange(1,100)
     count = 0
+
+    name = input("What's your name? : ")
 
     while True :
         try :
@@ -31,16 +32,19 @@ def guess_number() :
             elif guess == target : 
                 print("correct!\n")
                 print("Your score is %d !!\n\n"%count) 
-                print("Highest Score is %d" % HS)
+                print("Highest Score is %s 's %d point" % (record['champion'], HS))
                 if HS > count :
                     HS = count
-                    print("You are the New Champion!!")
-                    f = open("score.txt", 'w')
-                    data = "Highest Score : %d" % HS
-                    f.write(data)
-                    f.close()
+                    print("\n==============================")
+                    print("You are the New Champion!!\n")
+                    print("Champion : %s, Score : %d" % (name, count))
+                    print("==============================")
+                    
+                    nrecord = {'champion' : name, 'Highest Score' : count}
+                    with open(file_path, 'w') as f :
+                        json.dump(nrecord, f)
                 else :
-                    print("So Closeeee...")
+                    print("\nSo Closeeee...")
                 break
             elif guess > target :
                 print("Down!")
@@ -48,6 +52,10 @@ def guess_number() :
                 print("Up!")
         except ValueError :
             print("Only Number")
+
+        except KeyboardInterrupt :
+            print("\nGood bye ~")
+            break
         
 
 guess_number()
